@@ -14,7 +14,7 @@ MSBuild targets for building ASP.NET Core project with Angular frontend. The tar
 
   * Microsoft Visual Studio 2017 or later
   * MSBuild 15 or later
-  * NuGet 4 or later
+  * NuGet 3.5 or later
   * NPM 3.x
   * Angular CLI 1.1 or later
 
