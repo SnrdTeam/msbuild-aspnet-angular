@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+
+    <!-- Папка web-содержимого, используемая Visual Studio при запуске web-приложения. Не содержит завершающий слэш. -->
+    <VSWebRootDir Condition="'$(VSWebRootDir)' == ''">$(MSBuildProjectDirectory)\wwwroot</VSWebRootDir>
+    <VSWebRootDir>$(VSWebRootDir.TrimEnd('\'))</VSWebRootDir>
+
+    <!-- Папка, в которую помещаются файлы фронтэнда при публикации, относительно корня папки публикации. Не содержит завершающий слэш. -->
+    <WebRootPublishRelativePath Condition="'$(WebRootPublishRelativePath)' == ''">wwwroot</WebRootPublishRelativePath>
+    <WebRootPublishRelativePath>$(WebRootPublishRelativePath.TrimEnd('\'))</WebRootPublishRelativePath>
+
+    <!-- Путь к папке исходных файлов фронтэнда относительно корня проекта. Не содержит завершающий слэш. -->
+    <NgProjectDirPath Condition="'$(NgProjectDirPath)' == ''">Angular</NgProjectDirPath>
+    <NgProjectDirPath>$(NgProjectDirPath.TrimEnd('\'))</NgProjectDirPath>
+
+    <!-- Абсолютный путь к папке исходных файлов фронтэнда. Не содержит завершающий слэш. -->
+    <NgProjectDir>$(MSBuildProjectDirectory)\$(NgProjectDirPath)</NgProjectDir>
+
+    <!-- Путь к папке, в которую помещается сборка фронтэнда, относительно корня проекта. Не содержит завершающий слэш. -->
+    <NgOutDir Condition="'$(NgOutDir)' == ''">bin\$(Configuration)\angular</NgOutDir>
+    <NgOutDir>$(NgOutDir.TrimEnd('\'))</NgOutDir>
+
+    <!-- Абсолютный путь к папке, в которую помещается сборка Angular. Не содержит завершающий слэш. -->
+    <NgTargetDir>$(MSBuildProjectDirectory)\$(NgOutDir)</NgTargetDir>
+
+    <!-- Папка для промежуточного хранения файлов. Не содержит завершающий слэш. -->
+    <NgIntermediateDir Condition="'$(NgIntermediateDir)' == ''">$(MSBuildProjectDirectory)\obj\$(Configuration)\angular</NgIntermediateDir>
+    <NgIntermediateDir>$(NgIntermediateDir.TrimEnd('\'))</NgIntermediateDir>
+
+  </PropertyGroup>
+
+  <PropertyGroup>
+
+    <!-- Если 'true', то при очистке проекта папка с установленными пакетами NPM "node_modules" не удаляется, в противном случае - удаляется. -->
+    <RemoveNodeModulesOnNgClean Condition="'$(RemoveNodeModulesOnNgClean)' == ''">True</RemoveNodeModulesOnNgClean>
+
+  </PropertyGroup>
+
+  <!-- Параметры сборки Angular -->
+  <PropertyGroup>
+
+    <NgBuildTarget Condition="'$(NgBuildTarget)' == '' AND '$(Configuration)' == 'Release'">production</NgBuildTarget>
+    <NgBuildTarget Condition="'$(NgBuildTarget)' == ''">development</NgBuildTarget>
+
+    <NgBuildEnvironment Condition="'$(NgBuildEnvironment)' == ''">dev</NgBuildEnvironment>
+
+    <NgBuildSourcemaps Condition="'$(NgBuildSourcemaps)' == ''">True</NgBuildSourcemaps>
+
+    <NgBuildVendorChunk Condition="'$(NgBuildVendorChunk)' == ''">True</NgBuildVendorChunk>
+
+    <NgBuildAOT Condition="'$(NgBuildAOT)' == ''">False</NgBuildAOT>
+
+    <NgBuildBaseHref Condition="'$(NgBuildBaseHref)' == ''">/</NgBuildBaseHref>
+
+    <NgBuildDeployUrl Condition="'$(NgBuildDeployUrl)' == ''"></NgBuildDeployUrl>
+
+    <NgBuildVebose Condition="'$(NgBuildVebose)' == ''">False</NgBuildVebose>
+
+    <NgBuildExtractCSS Condition="'$(NgBuildExtractCSS)' == ''">False</NgBuildExtractCSS>
+
+    <NgBuildOutputHashing Condition="'$(NgBuildOutputHashing)' == ''">media</NgBuildOutputHashing>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(NgBuildTarget)' == 'production'">
+  
+    <NgBuildEnvironment Condition="'$(NgBuildEnvironment)' == ''">prod</NgBuildEnvironment>
+    
+    <NgBuildSourcemaps Condition="'$(NgBuildSourcemaps)' == ''">False</NgBuildSourcemaps>
+    
+    <NgBuildAOT Condition="'$(NgBuildAOT)' == ''">True</NgBuildAOT>
+    
+    <NgBuildExtractCSS Condition="'$(NgBuildExtractCSS)' == ''">True</NgBuildExtractCSS>
+    
+    <NgBuildOutputHashing Condition="'$(NgBuildOutputHashing)' == ''">all</NgBuildOutputHashing>
+    
+  </PropertyGroup>
+
+</Project>

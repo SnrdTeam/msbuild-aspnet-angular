@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--Import Project="Adeptik.AngularCLI.props" /-->  
+  
+  <!-- Корректировка значений свойств -->
+  <PropertyGroup>
+
+    <VSWebRootDir>$(VSWebRootDir.TrimEnd('\'))</VSWebRootDir>
+    <WebRootPublishRelativePath>$(WebRootPublishRelativePath.TrimEnd('\'))</WebRootPublishRelativePath>
+    <NgProjectDirPath>$(NgProjectDirPath.TrimEnd('\'))</NgProjectDirPath>
+    <NgProjectDir>$(MSBuildProjectDirectory)\$(NgProjectDirPath)</NgProjectDir>
+    <NgOutDir>$(NgOutDir.TrimEnd('\'))</NgOutDir>
+    <NgTargetDir>$(MSBuildProjectDirectory)\$(NgOutDir)</NgTargetDir>
+    <NgIntermediateDir>$(NgIntermediateDir.TrimEnd('\'))</NgIntermediateDir>
+
+  </PropertyGroup>
+  
+  <ItemGroup>
+
+    <Compile Remove="$(VSWebRootDir)\**" />
+    <Content Remove="$(VSWebRootDir)\**" />
+    <EmbeddedResource Remove="$(VSWebRootDir)\**" />
+    <None Remove="$(VSWebRootDir)\**" />
+
+    <Compile Remove="$(NgProjectDir)\**" />
+    <Content Remove="$(NgProjectDir)\**" />
+    <EmbeddedResource Remove="$(NgProjectDir)\**" />
+    <!--None Remove="$(NgProjectDir)\**" /-->
+
+    <NgCompile Include="$(NgProjectDir)\**"
+               Exclude="$(NgProjectDir)\node_modules\**;$(NgProjectDir)\.gitignore" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <NgBuildOutputsFile Include="$(NgIntermediateDir)\ng-build-outputs.txt" />
+    <NgInstalledPackagesFile Include="$(NgIntermediateDir)\ng-packages.txt" />
+
+  </ItemGroup>
+
+  <!-- Создание промежуточной папки Angular -->
+  <Target Name="_CreateNgIntermediateDir">
+
+    <MakeDir
+      Directories="$(NgIntermediateDir)"/>
+
+  </Target>
+
+  <!-- Проверка существования утилиты Angular CLI (ng) -->
+  <Target Name="CheckNg">
+
+    <Exec
+      Command="ng version"
+      IgnoreExitCode="True"
+      ConsoleToMSBuild="False">
+
+      <Output
+        TaskParameter="ExitCode"
+        PropertyName="AngularCliExitCode" />
+
+    </Exec>
+
+    <Error
+      Condition="'$(AngularCliExitCode)' != '0'"
+      Text="Angular CLI tool not found. Install it with `npm install -g @angular/cli` (globally). See more https://github.com/angular/angular-cli#installation"/>
+
+  </Target>
+
+  <!-- Восстановление пакетов NPM -->
+  <Target Name="NgRestorePackages"
+          DependsOnTargets="_CreateNgIntermediateDir"
+          Inputs="$(NgProjectDir)\package.json"
+          Outputs="@(NgInstalledPackagesFile)">
+
+    <Message
+      Text="Restoring NPM packages for Angular project at $(NgProjectDir)"
+      Importance="high" />
+
+    <Exec
+      Command="npm install"
+      WorkingDirectory="$(NgProjectDir)"
+      IgnoreExitCode="False"
+      ConsoleToMSBuild="False" />
+
+    <Exec
+      Command='npm ls > "@(NgInstalledPackagesFile)"'
+      WorkingDirectory="$(NgProjectDir)"
+      IgnoreExitCode="False"
+      ConsoleToMSBuild="False"/>
+
+  </Target>
+
+  <!-- Сборка Angular с помощью Angular CLI-->
+  <Target Name="NgBuild"
+          AfterTargets="BeforeBuild"
+          BeforeTargets="CoreBuild"
+          DependsOnTargets="CheckNg;NgRestorePackages;_CreateNgIntermediateDir"
+          Inputs="@(NgCompile)"
+          Outputs="@(NgBuildOutputsFile);$(NgTargetDir)\stats.json">
+
+    <PropertyGroup>
+
+      <Sourcemaps>false</Sourcemaps>
+      <Sourcemaps Condition="'$(NgBuildSourcemaps)' == 'true'">true</Sourcemaps>
+
+      <VendorChunk>false</VendorChunk>
+      <VendorChunk Condition="'$(NgBuildVendorChunk)' == 'true'">true</VendorChunk>
+
+      <AOT>false</AOT>
+      <AOT Condition="'$(NgBuildAOT)' == 'true'">true</AOT>
+
+      <Verbose>false</Verbose>
+      <Verbose Condition="'$(NgBuildVebose)' == 'true'">true</Verbose>
+
+      <ExtractCSS>false</ExtractCSS>
+      <ExtractCSS Condition="'$(NgBuildExtractCSS)' == 'true'">true</ExtractCSS>
+
+      <BuildCommand>ng build --target="$(NgBuildTarget)" --environment="$(NgBuildEnvironment)" --sourcemaps=$(Sourcemaps) --vendor-chunk=$(VendorChunk) --aot=$(AOT) --base-href="$(NgBuildBaseHref)" --deploy-url="$(NgBuildDeployUrl)" --verbose=$(Verbose) --extract-css=$(ExtractCSS) --output-hashing="$(NgBuildOutputHashing)" --output-path="$(NgTargetDir)" --stats-json --progress=false</BuildCommand>
+
+    </PropertyGroup>
+
+    <Delete
+      Files="@(NgBuildOutputsFile)" />
+
+    <Exec
+      Command="$(BuildCommand)"
+      WorkingDirectory="$(NgProjectDir)"
+      IgnoreExitCode="True"
+      ConsoleToMSBuild="False">
+
+      <Output
+        TaskParameter="ExitCode"
+        PropertyName="AngularCliExitCode" />
+
+    </Exec>
+
+    <Error
+      Condition="'$(AngularCliExitCode)' != '0'"
+      Text="Angular build failed" />
+
+  </Target>
+
+  <!-- Разрешение всех файлов, совокупность которых является "сборкой" фронтэнда -->
+  <Target Name="ResolveNgBuildOutput"
+          AfterTargets="NgBuild"
+          DependsOnTargets="NgBuild;_CreateNgIntermediateDir">
+
+    <ItemGroup>
+
+      <NgBuildOutput
+        Include="$(NgTargetDir)\**"
+        Exclude="$(NgTargetDir)\stats.json"/>
+
+    </ItemGroup>
+
+    <WriteLinesToFile
+            File="@(NgBuildOutputsFile)"
+            Lines="@(NgBuildOutput)"
+            Overwrite="true"
+            Encoding="Unicode"/>
+
+  </Target>
+
+  <!-- Копирование "сборки" фронтэнда в папку статических файлов веб-приложения -->
+  <Target Name="CopyNgBuildOutputToWebRoot"
+          AfterTargets="NgBuild"
+          DependsOnTargets="ResolveNgBuildOutput"
+          Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+
+    <Copy
+      SourceFiles="@(NgBuildOutput)"
+      DestinationFolder="$(VSWebRootDir)"
+      SkipUnchangedFiles="True">
+
+      <Output
+        TaskParameter="CopiedFiles"
+        ItemName="WebContent"/>
+
+    </Copy>
+
+    <ItemGroup>
+
+      <WebRootFileToDelete
+        Include="$(VSWebRootDir)\**"
+        Exclude="@(WebContent)"/>
+
+    </ItemGroup>
+
+    <Delete Files="@(WebRootFileToDelete)"/>
+
+  </Target>
+
+  <!-- Генерирование списка файлов фронтэнда для публикации -->
+  <Target Name="ComputeNgPublishFiles"
+          BeforeTargets="ComputeFilesToPublish"
+          DependsOnTargets="ResolveNgBuildOutput">
+
+    <ItemGroup>
+
+      <ResolvedFileToPublish Include="@(NgBuildOutput)">
+        <RelativePath>$(WebRootPublishRelativePath)\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+      </ResolvedFileToPublish>
+
+    </ItemGroup>
+
+  </Target>
+
+  <!-- Очистка Angular -->
+  <Target Name="NgClean"
+          AfterTargets="BeforeClean"
+          BeforeTargets="CoreClean">
+
+    <RemoveDir
+      Directories="$(NgIntermediateDir)" />
+
+    <RemoveDir
+      Directories="$(NgTargetDir)" />
+
+    <RemoveDir
+      Directories="$(VSWebRootDir)" />
+
+    <RemoveDir
+      Condition="'$(RemoveNodeModulesOnNgClean)' == 'true'"
+      Directories="$(NgProjectDir)\node_modules"/>
+
+  </Target>
+
+</Project>
