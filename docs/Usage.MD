@@ -42,7 +42,7 @@
       <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     </PropertyGroup>
 
-  2.4. Настроить параметры сборки Angular путем задания свойств MSBuild. [Список свойств сборки Angular](Properties.md).
+  2.4. Настроить параметры сборки Angular путем задания свойств MSBuild. [Список свойств сборки Angular](Properties.MD).
   
   2.5. Добавить зависимость NuGet Adeptik.AspNet.Angular.
 
