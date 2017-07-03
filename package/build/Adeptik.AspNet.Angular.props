@@ -41,25 +41,35 @@
   <!-- Параметры сборки Angular -->
   <PropertyGroup>
 
+    <!-- Тип построения. Принимает значения: development, production. -->
     <NgBuildTarget Condition="'$(NgBuildTarget)' == '' AND '$(Configuration)' == 'Release'">production</NgBuildTarget>
     <NgBuildTarget Condition="'$(NgBuildTarget)' == ''">development</NgBuildTarget>
 
+    <!-- Имя среды. -->
     <NgBuildEnvironment Condition="'$(NgBuildEnvironment)' == ''">dev</NgBuildEnvironment>
 
+    <!-- Признак того, что необходимо сгенерировать map-файлы. -->
     <NgBuildSourcemaps Condition="'$(NgBuildSourcemaps)' == ''">True</NgBuildSourcemaps>
 
+    <!-- Признак того, что для своих библиотек необходимо использовать отдельный bundle. -->
     <NgBuildVendorChunk Condition="'$(NgBuildVendorChunk)' == ''">True</NgBuildVendorChunk>
 
+    <!-- Признак использования компиляции "Ahead of time". -->
     <NgBuildAOT Condition="'$(NgBuildAOT)' == ''">False</NgBuildAOT>
 
+    <!-- Базовый url. -->
     <NgBuildBaseHref Condition="'$(NgBuildBaseHref)' == ''">/</NgBuildBaseHref>
 
+    <!-- Url развертывания. -->
     <NgBuildDeployUrl Condition="'$(NgBuildDeployUrl)' == ''"></NgBuildDeployUrl>
 
+    <!-- Вывод дополнительной информации в консоль. -->
     <NgBuildVebose Condition="'$(NgBuildVebose)' == ''">False</NgBuildVebose>
 
+    <!-- Извлечение глобальных стилей в файлы css вместо js. -->
     <NgBuildExtractCSS Condition="'$(NgBuildExtractCSS)' == ''">False</NgBuildExtractCSS>
 
+    <!-- Режим хэширования имен выходных файлов. Принимает значения: none|all|media|bundles. -->
     <NgBuildOutputHashing Condition="'$(NgBuildOutputHashing)' == ''">media</NgBuildOutputHashing>
 
   </PropertyGroup>
