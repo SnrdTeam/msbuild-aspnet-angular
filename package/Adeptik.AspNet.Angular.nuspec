@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>Adeptik.AspNet.Angular</id>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
         <title>MSBuild ASP.NET Angular Extension</title>
         <authors>Snrd,Adeptik</authors>
         <owners>Snrd,Adeptik</owners>
