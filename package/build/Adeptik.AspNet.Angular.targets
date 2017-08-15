@@ -47,6 +47,14 @@
       Directories="$(NgIntermediateDir)"/>
 
   </Target>
+    
+  <!-- Создание выходной папки Angular -->
+  <Target Name="_CreateNgTargetDir">
+
+    <MakeDir
+      Directories="$(NgTargetDir)"/>
+
+  </Target>
 
   <!-- Проверка существования утилиты Angular CLI (ng) -->
   <Target Name="CheckNg">
@@ -96,7 +104,7 @@
   <Target Name="NgBuild"
           AfterTargets="BeforeBuild"
           BeforeTargets="CoreBuild"
-          DependsOnTargets="CheckNg;NgRestorePackages;_CreateNgIntermediateDir"
+          DependsOnTargets="CheckNg;NgRestorePackages;_CreateNgIntermediateDir;_CreateNgTargetDir"
           Inputs="@(NgCompile)"
           Outputs="@(NgBuildOutputsFile);$(NgTargetDir)\stats.json">
 
